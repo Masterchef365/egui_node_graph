@@ -493,7 +493,12 @@ where
             self.node_finder = None;
         }
 
-        if r.dragged() && ui.ctx().input(|i| i.pointer.middle_down()) {
+        let shift_held = ui.ctx().input(|i| i.modifiers.shift);
+        let middle_down = ui.ctx().input(|i| i.pointer.middle_down());
+        let primary_down = ui.ctx().input(|i| i.pointer.primary_down());
+
+        // Pan
+        if r.dragged() && (middle_down || (primary_down && shift_held)) {
             self.pan_zoom.pan += ui.ctx().input(|i| i.pointer.delta());
         }
 
@@ -504,11 +509,14 @@ where
             self.node_finder = None;
         }
 
-        if drag_started_on_background && mouse.primary_down() {
-            self.ongoing_box_selection = Some(cursor_pos);
-        }
-        if mouse.primary_released() || drag_released_on_background {
-            self.ongoing_box_selection = None;
+        // Box selection
+        if !shift_held {
+            if drag_started_on_background && primary_down {
+                self.ongoing_box_selection = Some(cursor_pos);
+            }
+            if mouse.primary_released() || drag_released_on_background {
+                self.ongoing_box_selection = None;
+            }
         }
 
         GraphResponse {
