@@ -2,11 +2,13 @@ use super::*;
 
 impl<NodeData, DataType, ValueType> Graph<NodeData, DataType, ValueType> {
     pub fn new() -> Self {
+        let inputs = UniqueSlotmap::default();
+        let connections = UniqueSecondaryMap::new_from_key(&inputs);
         Self {
-            nodes: Default::default(),
-            inputs: Default::default(),
+            connections,
+            inputs,
             outputs: Default::default(),
-            connections: Default::default(),
+            nodes: Default::default(),
         }
     }
 

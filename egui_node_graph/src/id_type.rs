@@ -66,7 +66,7 @@ where
     K::InnerKey: Key,
 {
     map: SecondaryMap<K::InnerKey, V>,
-    id: Option<MapId>,
+    id: MapId,
 }
 
 pub trait HasKey {
@@ -97,16 +97,15 @@ where
     }
 }
 
-impl<K, V> Default for UniqueSecondaryMap<K, V>
+impl<K, V> UniqueSecondaryMap<K, V>
 where
     K: HasKey,
     K::InnerKey: Key,
 {
-    fn default() -> Self {
+    pub fn new_from_key<V2>(map: &UniqueSlotmap<K, V2>) -> Self {
         Self {
             map: SecondaryMap::new(),
-            // Set on first insert...
-            id: None,
+            id: map.id,
         }
     }
 }
@@ -116,30 +115,12 @@ impl<K: Key, V> UniqueSlotmap<UniqueId<K>, V> {
         let UniqueId(key, map_id) = key;
         (map_id == self.id).then(|| key)
     }
-
-    // Just so I can copy and paste...
-    fn check_key_mut(&mut self, key: UniqueId<K>) -> Option<K> {
-        self.check_key(key)
-    }
 }
 
 impl<K: Key, V> UniqueSecondaryMap<UniqueId<K>, V> {
     fn check_key(&self, key: UniqueId<K>) -> Option<K> {
         let UniqueId(key, map_id) = key;
-        if let Some(our_id) = self.id {
-            (map_id == our_id).then(|| key)
-        } else {
-            // TODO: This assumes all keys checked before the first insert are valid!
-            Some(key)
-        }
-    }
-
-    fn check_key_mut(&mut self, key: UniqueId<K>) -> Option<K> {
-        if self.id.is_none() {
-            let UniqueId(_, map_id) = key;
-            self.id = Some(map_id)
-        }
-        self.check_key(key)
+        (map_id == self.id).then(|| key)
     }
 }
 
@@ -158,7 +139,7 @@ impl<K: Key, V> Index<UniqueId<K>> for UniqueSlotmap<UniqueId<K>, V> {
 
 impl<K: Key, V> IndexMut<UniqueId<K>> for UniqueSlotmap<UniqueId<K>, V> {
     fn index_mut(&mut self, index: UniqueId<K>) -> &mut Self::Output {
-        if let Some(key) = self.check_key_mut(index) {
+        if let Some(key) = self.check_key(index) {
             &mut self.map[key]
         } else {
             panic!("Attempted to access key from another map");
@@ -172,7 +153,7 @@ impl<K: Key, V> UniqueSlotmap<UniqueId<K>, V> {
     }
 
     pub fn get_mut(&mut self, index: UniqueId<K>) -> Option<&mut V> {
-        let key = self.check_key_mut(index);
+        let key = self.check_key(index);
         key.and_then(|key| self.map.get_mut(key))
     }
 
@@ -241,7 +222,7 @@ impl<K: Key, V> Index<UniqueId<K>> for UniqueSecondaryMap<UniqueId<K>, V> {
 
 impl<K: Key, V> IndexMut<UniqueId<K>> for UniqueSecondaryMap<UniqueId<K>, V> {
     fn index_mut(&mut self, index: UniqueId<K>) -> &mut Self::Output {
-        if let Some(key) = self.check_key_mut(index) {
+        if let Some(key) = self.check_key(index) {
             &mut self.map[key]
         } else {
             panic!("Attempted to access key from another map");
@@ -255,7 +236,7 @@ impl<K: Key, V> UniqueSecondaryMap<UniqueId<K>, V> {
     }
 
     pub fn get_mut(&mut self, index: UniqueId<K>) -> Option<&mut V> {
-        let key = self.check_key_mut(index);
+        let key = self.check_key(index);
         key.and_then(|key| self.map.get_mut(key))
     }
 
@@ -267,16 +248,16 @@ impl<K: Key, V> UniqueSecondaryMap<UniqueId<K>, V> {
     pub fn iter(&self) -> impl Iterator<Item = (UniqueId<K>, &V)> + '_ {
         self.map
             .iter()
-            .map(move |(k, v)| (UniqueId(k, self.id.expect("Use insert() before iter()")), v))
+            .map(move |(k, v)| (UniqueId(k, self.id), v))
     }
 
     pub fn iter_mut(&mut self) -> impl Iterator<Item = (UniqueId<K>, &mut V)> + '_ {
-        let id = self.id.expect("Use insert() before iter_mut()");
+        let id = self.id;
         self.map.iter_mut().map(move |(k, v)| (UniqueId(k, id), v))
     }
 
     pub fn insert(&mut self, key: UniqueId<K>, value: V) -> Option<V> {
-        if let Some(key) = self.check_key_mut(key) {
+        if let Some(key) = self.check_key(key) {
             self.map.insert(key, value)
         } else {
             panic!("Attempted to insert key from another map")
@@ -287,7 +268,7 @@ impl<K: Key, V> UniqueSecondaryMap<UniqueId<K>, V> {
     where
         F: FnMut(UniqueId<K>, &mut V) -> bool,
     {
-        let id = self.id.expect("Use insert() before retain()");
+        let id = self.id;
         self.map.retain(|key, value| f(UniqueId(key, id), value))
     }
 
@@ -302,7 +283,7 @@ impl<K: Key, V> UniqueSecondaryMap<UniqueId<K>, V> {
     pub fn keys(&self) -> impl Iterator<Item = UniqueId<K>> + '_ {
         self.map
             .keys()
-            .map(move |k| (UniqueId(k, self.id.expect("Use insert() before iter()"))))
+            .map(move |k| (UniqueId(k, self.id)))
     }
 }
 

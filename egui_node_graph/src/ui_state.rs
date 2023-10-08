@@ -48,13 +48,15 @@ impl<NodeData, DataType, ValueType, NodeKind, UserState> Default
     for GraphEditorState<NodeData, DataType, ValueType, NodeKind, UserState>
 {
     fn default() -> Self {
+        let graph = Graph::default();
+        let node_positions = UniqueSecondaryMap::new_from_key(&graph.nodes);
         Self {
-            graph: Default::default(),
+            graph,
+            node_positions,
             node_order: Default::default(),
             connection_in_progress: Default::default(),
             selected_nodes: Default::default(),
             ongoing_box_selection: Default::default(),
-            node_positions: Default::default(),
             node_finder: Default::default(),
             pan_zoom: Default::default(),
             _user_state: Default::default(),
