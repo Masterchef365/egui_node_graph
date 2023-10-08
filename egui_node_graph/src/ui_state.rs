@@ -26,7 +26,7 @@ pub struct GraphEditorState<NodeData, DataType, ValueType, NodeTemplate, UserSta
     /// The mouse drag start position for an ongoing box selection.
     pub ongoing_box_selection: Option<egui::Pos2>,
     /// The position of each node.
-    pub node_positions: SecondaryMap<NodeId, egui::Pos2>,
+    pub node_positions: UniqueSecondaryMap<NodeId, egui::Pos2>,
     /// The node finder is used to create new nodes.
     pub node_finder: Option<NodeFinder<NodeTemplate>>,
     /// The panning of the graph viewport.

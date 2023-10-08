@@ -80,12 +80,12 @@ pub struct OutputParam<DataType> {
 #[cfg_attr(feature = "persistence", derive(Serialize, Deserialize))]
 pub struct Graph<NodeData, DataType, ValueType> {
     /// The [`Node`]s of the graph
-    pub nodes: SlotMap<NodeId, Node<NodeData>>,
+    pub nodes: UniqueSlotmap<NodeId, Node<NodeData>>,
     /// The [`InputParam`]s of the graph
-    pub inputs: SlotMap<InputId, InputParam<DataType, ValueType>>,
+    pub inputs: UniqueSlotmap<InputId, InputParam<DataType, ValueType>>,
     /// The [`OutputParam`]s of the graph
-    pub outputs: SlotMap<OutputId, OutputParam<DataType>>,
+    pub outputs: UniqueSlotmap<OutputId, OutputParam<DataType>>,
     // Connects the input of a node, to the output of its predecessor that
     // produces it
-    pub connections: SecondaryMap<InputId, OutputId>,
+    pub connections: UniqueSecondaryMap<InputId, OutputId>,
 }
