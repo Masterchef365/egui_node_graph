@@ -292,16 +292,20 @@ where
                 NodeData,
                 UserState,
                 DataType: DataTypeTrait<UserState>,
+                Key,
                 ValueType,
-                Key: slotmap::Key + Into<AnyParameterId>,
                 Value,
             >(
                 graph: &Graph<NodeData, DataType, ValueType>,
                 port_type: &DataType,
-                ports: &SlotMap<Key, Value>,
+                ports: &UniqueSlotmap<UniqueId<Key>, Value>,
                 port_locations: &PortLocations,
                 cursor_pos: Pos2,
-            ) -> Pos2 {
+            ) -> Pos2
+            where
+                UniqueId<Key>: Into<AnyParameterId>,
+                Key: slotmap::Key,
+            {
                 ports
                     .iter()
                     .find_map(|(port_id, _)| {
