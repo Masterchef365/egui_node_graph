@@ -218,6 +218,12 @@ impl<K: Key, V> UniqueSlotmap<UniqueId<K>, V> {
             false
         }
     }
+
+    pub fn keys(&self) -> impl Iterator<Item = UniqueId<K>> + '_ {
+        self.map
+            .keys()
+            .map(move |k| (UniqueId(k, self.id)))
+    }
 }
 
 // UniqueSecondaryMap
@@ -291,6 +297,12 @@ impl<K: Key, V> UniqueSecondaryMap<UniqueId<K>, V> {
         } else {
             false
         }
+    }
+
+    pub fn keys(&self) -> impl Iterator<Item = UniqueId<K>> + '_ {
+        self.map
+            .keys()
+            .map(move |k| (UniqueId(k, self.id.expect("Use insert() before iter()"))))
     }
 }
 
