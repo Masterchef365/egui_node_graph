@@ -3,10 +3,10 @@ use super::*;
 impl<NodeData, DataType, ValueType> Graph<NodeData, DataType, ValueType> {
     pub fn new() -> Self {
         Self {
-            nodes: SlotMap::default(),
-            inputs: SlotMap::default(),
-            outputs: SlotMap::default(),
-            connections: SecondaryMap::default(),
+            nodes: Default::default(),
+            inputs: Default::default(),
+            outputs: Default::default(),
+            connections: Default::default(),
         }
     }
 
