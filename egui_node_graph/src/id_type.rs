@@ -8,6 +8,7 @@ slotmap::new_key_type! { pub struct OutputIdInternal; }
 
 pub type MapId = u128;
 
+#[cfg_attr(feature = "persistence", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Copy, Clone, Default, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub struct UniqueId<K: Key>(K, MapId);
 
@@ -49,6 +50,7 @@ impl From<InputId> for AnyParameterId {
     }
 }
 
+#[cfg_attr(feature = "persistence", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone)]
 pub struct UniqueSlotmap<K, V>
 where
@@ -59,6 +61,7 @@ where
     id: MapId,
 }
 
+#[cfg_attr(feature = "persistence", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone)]
 pub struct UniqueSecondaryMap<K, V>
 where
