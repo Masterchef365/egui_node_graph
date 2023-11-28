@@ -87,7 +87,7 @@ impl Scale for Style {
         self.spacing.icon_spacing *= amount;
         self.spacing.tooltip_width *= amount;
         self.spacing.combo_height *= amount;
-        self.spacing.scroll_bar_width *= amount;
+        //self.spacing.scroll_bar_width *= amount;
 
         self.interaction.resize_grab_radius_side *= amount;
         self.interaction.resize_grab_radius_corner *= amount;
