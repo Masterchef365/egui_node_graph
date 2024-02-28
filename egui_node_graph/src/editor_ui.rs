@@ -186,7 +186,7 @@ where
         let cursor_pos = ui
             .ctx()
             .input(|i| i.pointer.hover_pos().unwrap_or(Pos2::ZERO));
-        let mut cursor_in_editor = resp.hovered();
+        let mut cursor_in_editor = resp.rect.contains(cursor_pos); //resp.hovered();
         let mut cursor_in_finder = false;
 
         // Gets filled with the node metrics as they are drawn
